@@ -1,4 +1,4 @@
-=== Public Post Preview ===
+=== Public Post Preview Configurator ===
 Contributors: bjoerne
 Tags: public, post, preview, posts, configuration
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XS98Y5ASSH5S4
@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Enables you to configure 'public post preview' plugin with a user interface.
+Enables you to configure the 'public post preview' plugin with a user interface.
 
 == Description ==
 
