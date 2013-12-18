@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Public Post Preview Configurator
  * Plugin URI: http://www.bjoerne.com
- * Version: 1.0.0
+ * Version: 1.0.1
  * Description: Enables you to configure 'public post preview' plugin with a user interface.
  * Author: Björn Weinbrenner
  * Author URI: http://www.bjoerne.com/
