@@ -144,8 +144,8 @@ class FeatureContext extends MinkContext {
 		if ( ! file_exists( $tempfile ) ) {
 			throw new Exception( 'Could not create temp file' );
 		}
-		unlink( $tempfile );
-		mkdir( $tempfile );
+		$this->delete_file_or_dir( $tempfile );
+		$this->mkdir( $tempfile );
 		if ( ! is_dir( $tempfile ) ) {
 			throw new Exception( 'Could not create temp dir' );
 		}
@@ -154,7 +154,9 @@ class FeatureContext extends MinkContext {
 
 	private function prepare_wp_in_webserver() {
 		$this->extract_zip_to_dir( $this->wp_install_file, $this->temp_dir );
-		$this->move_former_webserver_dir_to_temp( $this->webserver_dir, $this->temp_dir );
+		if ( is_dir( $this->webserver_dir ) ) {
+			$this->delete_file_or_dir( $this->webserver_dir );
+		}
 		$this->move_file_or_dir( $this->path( $this->temp_dir, 'wordpress' ), $this->webserver_dir );
 	}
 
@@ -165,8 +167,7 @@ class FeatureContext extends MinkContext {
 	}
 
 	private function prepare_sqlite_database() {
-		$this->mkdir( $this->path( $this->webserver_dir, 'wp-content', 'database' ) );
-		$this->copy_file_or_dir( $this->path( $this->install_dir, $this->database_file ), $this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
+		$this->copy_file_or_dir( $this->path( $this->install_dir, $this->database_file ), $this->path( $this->temp_dir, $this->database_file ) );
 	}
 
 	private function create_wp_config_file() {
@@ -185,6 +186,7 @@ class FeatureContext extends MinkContext {
 				$line = $this->replace_config_value( $line );
 				if ( $db_config_started && preg_match( '/^\/\*\*#@\+/', $line ) ) {
 					$this->write_to_file( $target_handle, "define('DB_FILE', '".$this->database_file."');\r\n" );
+					$this->write_to_file( $target_handle, "define('DB_DIR', '".$this->temp_dir."');\r\n" );
 					$this->write_to_file( $target_handle, "\r\n" );
 				}
 				$this->write_to_file( $target_handle, $line );
@@ -206,6 +208,39 @@ class FeatureContext extends MinkContext {
 		}
 		return preg_replace( '/'.$value.'/', $this->wp_config_replacements[$key], $line );
 	}
+	
+	/**
+	 * Makes sure the current user is logged out, and then logs in with
+	 * the given username and password.
+	 *
+	 * @param string $username
+	 * @param string $password
+	 * @author Maarten Jacobs
+	 **/
+	private function login( $username, $password ) {
+		$this->visit( 'wp-admin' );
+		$page = $this->get_page();
+		$page->fillField( 'user_login', $username );
+		$page->fillField( 'user_pass', $password );
+		$page->findButton( 'wp-submit' )->click();
+		assertTrue( $page->hasContent( 'Dashboard' ) );
+	}
+
+	private function get_page() {
+		return $this->getSession()->getPage();
+	}
+
+	private function create_pdo() {
+		$pdo = new PDO( 'sqlite:'.$this->path( $this->temp_dir, $this->database_file ) );
+		$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		return $pdo;
+	}
+
+	private function num_of_rows( $result ) {
+		$count = 0;
+		foreach ( $result as $row ) $count++;
+		return $count;
+	}
 
 	private function path() {
 		return implode( func_get_args(), DIRECTORY_SEPARATOR );
@@ -220,13 +255,6 @@ class FeatureContext extends MinkContext {
 		} else {
 			throw new Exception( 'Unable to open zip file '.$zip_file );
 		}		
-	}
-
-	private function move_former_webserver_dir_to_temp( $webserver_dir, $temp_dir ) {
-		if ( ! is_dir( $webserver_dir ) ) {
-			return;
-		}
-		$this->move_file_or_dir( $webserver_dir, $this->path( $temp_dir, 'wordpress_old' ) );
 	}
 
 	private function move_file_or_dir( $source, $target ) {
@@ -257,42 +285,28 @@ class FeatureContext extends MinkContext {
 		}
 	}
 
+	private function delete_file_or_dir( $file_or_dir ) {
+		if ( is_file( $file_or_dir ) ) {
+			if ( ! unlink( $file_or_dir ) ) {
+				throw new Exception( 'Can\'t delete file '.$file_or_dir );
+			}
+		} else {
+			foreach ( scandir( $file_or_dir ) as $found ) {
+				if ( $found == '.' || $found == '..' ) {
+					continue;
+				}
+				$this->delete_file_or_dir( $this->path( $file_or_dir, $found ) );
+			}
+			if ( ! rmdir( $file_or_dir ) ) {
+				throw new Exception( 'Can\'t delete directory '.$file_or_dir );
+			}
+		}
+	}
+
 	private function write_to_file( $handle, $string ) {
 		if ( ! fwrite( $handle, $string ) ) {
 			throw new Exception( 'Can\'t write to file' );
 		}
 	}
-	
-	/**
-	 * Makes sure the current user is logged out, and then logs in with
-	 * the given username and password.
-	 *
-	 * @param string $username
-	 * @param string $password
-	 * @author Maarten Jacobs
-	 **/
-	private function login( $username, $password ) {
-		$this->visit( 'wp-admin' );
-		$page = $this->get_page();
-		$page->fillField( 'user_login', $username );
-		$page->fillField( 'user_pass', $password );
-		$page->findButton( 'wp-submit' )->click();
-		assertTrue( $page->hasContent( 'Dashboard' ) );
-	}
 
-	private function get_page() {
-		return $this->getSession()->getPage();
-	}
-
-	private function create_pdo() {
-		$pdo = new PDO( 'sqlite:'.$this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
-		$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-		return $pdo;
-	}
-
-	private function num_of_rows( $result ) {
-		$count = 0;
-		foreach ( $result as $row ) $count++;
-		return $count;
-	}
 }
