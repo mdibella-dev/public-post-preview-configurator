@@ -41,13 +41,13 @@ class FeatureContext extends MinkContext {
 	/**
 	 * @Given /^a fresh WordPress installation( \(([^\)]*)\))?$/
 	 */
-	public function a_fresh_wordress_installation( $language_expr, $locale = '' ) {
+	public function a_fresh_wordress_installation( $language_expr = null, $locale = '' ) {
 		$this->wp_config_replacements['WPLANG'] = $locale;
 		$this->create_temp_dir();
 		$this->prepare_wp_in_webserver();
 		$this->prepare_sqlite_integration_in_webserver();
 		$this->prepare_sqlite_database();
-		$this->create_wp_config_file();		
+		$this->create_wp_config_file();
 	}
 
 	/**
@@ -60,11 +60,48 @@ class FeatureContext extends MinkContext {
 	/**
 	 * @Given /^I am logged as an administrator$/
 	 */
-	public function i_am_logged_in_as_an_administrator()
-	{
+	public function i_am_logged_in_as_an_administrator() {
 		$this->login( 'admin', 'admin' );
 	}
 
+	/**
+	 * @Given /^I activate the plugin "([^"]*)"$/
+	 */
+	public function i_activate_the_plugin( $plugin_id ) {
+		$page = $this->get_page();
+		$plugin_area = $page->find( 'css', "#$plugin_id" );
+		foreach ( $plugin_area->findAll( 'css', 'a' ) as $link ) {
+			if ( preg_match( '/action=activate/', $link->getAttribute( 'href' ) ) ) {
+				$link->click();
+				break;
+			}
+		}
+	}
+
+	/**
+	 * @Given /^I should see the message "([^"]*)"$/
+	 */
+	public function i_should_see_the_message( $msg ) {
+		assertNotNull( $this->get_page()->find( 'css', '.updated' ), "Can't find element" );
+		assertTrue( $this->get_page()->hasContent( $msg ), "Can't find message" );
+	}
+
+	/**
+	 * @Given /the option "([^"]*)" should have the value "([^"]*)"$/
+	 */
+	public function the_option_should_have_the_value( $option_name, $option_value ) {
+		$pdo = new PDO('sqlite:'.$this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
+		$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		$result = $pdo->query( "SELECT * FROM wp_options WHERE option_name='$option_name' AND option_value='$option_value'" );
+		assertEquals( count( $result ), 1 );
+	}
+
+	/**
+	 * @Given /^I wait for ([\d\.]*) seconds$/
+	 */
+	public function i_wait_for( $seconds ) {
+		sleep( intval( $seconds ) );
+	}
 
 	private function create_temp_dir() {
 		$tempfile = tempnam( sys_get_temp_dir(), '' );
@@ -198,18 +235,16 @@ class FeatureContext extends MinkContext {
 	 * @param string $password
 	 * @author Maarten Jacobs
 	 **/
-	protected function login( $username, $password ) {
+	private function login( $username, $password ) {
 		$this->visit( 'wp-admin' );
-
-		// And login
-		$session = $this->getSession();
-		$current_page = $session->getPage();
-		$current_page->fillField( 'user_login', $username );
-		$current_page->fillField( 'user_pass', $password );
-		$current_page->findButton( 'wp-submit' )->click();
-
-		// Assert that we are on the dashboard
-		assertTrue( $session->getPage()->hasContent( 'Dashboard' ) );
+		$page = $this->get_page();
+		$page->fillField( 'user_login', $username );
+		$page->fillField( 'user_pass', $password );
+		$page->findButton( 'wp-submit' )->click();
+		assertTrue( $page->hasContent( 'Dashboard' ) );
 	}
 
+	private function get_page() {
+		return $this->getSession()->getPage();
+	}
 }
