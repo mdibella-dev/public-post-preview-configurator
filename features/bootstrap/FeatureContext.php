@@ -59,7 +59,7 @@ class FeatureContext extends MinkContext {
 	 * @Given /^the plugin "([^"]*)" in the plugin directory$/
 	 */
 	public function the_plugin_in_the_plugin_directory( $plugin_target_dir ) {
-		$this->copy_dir( $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'src' ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', $plugin_target_dir ) );
+		$this->copy_file_or_dir( $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'src' ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', $plugin_target_dir ) );
 	}
 
 	/**
@@ -74,12 +74,12 @@ class FeatureContext extends MinkContext {
 	private function create_temp_dir() {
 		$tempfile = tempnam( sys_get_temp_dir(), '' );
 		if ( ! file_exists( $tempfile ) ) {
-			throw new Exception( 'Could not create temp file', 1 );
+			throw new Exception( 'Could not create temp file' );
 		}
 		unlink( $tempfile );
 		mkdir( $tempfile );
 		if ( ! is_dir( $tempfile ) ) {
-			throw new Exception( 'Could not create temp dir', 1 );
+			throw new Exception( 'Could not create temp dir' );
 		}
 		$this->temp_dir = $tempfile;
 	}
@@ -93,12 +93,12 @@ class FeatureContext extends MinkContext {
 	private function prepare_sqlite_integration_in_webserver() {
 		$this->extract_zip_to_dir( $this->sqlite_integration_install_file, $this->temp_dir );
 		$this->move_file_or_dir( $this->path( $this->temp_dir, 'sqlite-integration' ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', 'sqlite-integration' ) );
-		$this->copy_file( $this->path( $this->webserver_dir, 'wp-content', 'plugins', 'sqlite-integration', 'db.php' ), $this->path( $this->webserver_dir, 'wp-content', 'db.php' ) );
+		$this->copy_file_or_dir( $this->path( $this->webserver_dir, 'wp-content', 'plugins', 'sqlite-integration', 'db.php' ), $this->path( $this->webserver_dir, 'wp-content', 'db.php' ) );
 	}
 
 	private function prepare_sqlite_database() {
 		$this->mkdir( $this->path( $this->webserver_dir, 'wp-content', 'database' ) );
-		$this->copy_file( $this->path( $this->install_dir, $this->database_file ), $this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
+		$this->copy_file_or_dir( $this->path( $this->install_dir, $this->database_file ), $this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
 	}
 
 	private function create_wp_config_file() {
@@ -106,10 +106,10 @@ class FeatureContext extends MinkContext {
 		$target_handle = fopen( $this->path( $this->webserver_dir, 'wp-config.php' ), 'w' );
 		try {
 			if ( ! $source_handle ) {
-				throw new Exception( 'Can\'t read wp-config-sample.php', 1 );
+				throw new Exception( 'Can\'t read wp-config-sample.php' );
 			} 
 			if ( ! $source_handle ) {
-				throw new Exception( 'Can\'t write wp-config.php', 1 );
+				throw new Exception( 'Can\'t write wp-config.php' );
 			} 
 			$db_config_started = false;
 			while ( ($line = fgets( $source_handle ) ) !== false ) {
@@ -150,7 +150,7 @@ class FeatureContext extends MinkContext {
 			$zip->extractTo( $dir );
 			$zip->close();
 		} else {
-			throw new Exception( 'Unable to open zip file '.$zip_file, 1 );
+			throw new Exception( 'Unable to open zip file '.$zip_file );
 		}		
 	}
 
@@ -163,41 +163,35 @@ class FeatureContext extends MinkContext {
 
 	private function move_file_or_dir( $source, $target ) {
 		if ( ! rename( $source, $target ) ) {
-			throw new Exception( 'Can\'t move '.$source.' to '.$target, 1 );
+			throw new Exception( 'Can\'t move '.$source.' to '.$target );
 		}
 	}
 
-	private function copy_dir( $source_dir, $target_dir ) {
-		$this->mkdir( $target_dir );
-		foreach ( scandir( $source_dir ) as $found ) {
-			if ( $found == '.' || $found == '..' ) {
-				continue;
+	private function copy_file_or_dir( $source, $target ) {
+		if ( is_file( $source ) ) {
+			if ( ! copy( $source, $target ) ) {
+				throw new Exception( 'Can\'t copy file '.$source.' to '.$target );
 			}
-			$source_file_or_dir = $this->path( $source_dir, $found );
-			$target_file_or_dir = $this->path( $target_dir, $found );
-			if ( is_file( $source_file_or_dir ) ) {
-				$this->copy_file( $source_file_or_dir, $target_file_or_dir );
-			} else {
-				$this->copy_dir( $source_file_or_dir, $target_file_or_dir );
+		} else {
+			$this->mkdir( $target );
+			foreach ( scandir( $source ) as $found ) {
+				if ( $found == '.' || $found == '..' ) {
+					continue;
+				}
+				$this->copy_file_or_dir( $this->path( $source, $found ), $this->path( $target, $found ) );
 			}
-		}
-	}
-
-	private function copy_file( $source_file, $target_file ) {
-		if ( ! copy( $source_file, $target_file ) ) {
-			throw new Exception( 'Can\'t copy file '.$source_file.' to '.$target_file, 1 );
 		}
 	}
 
 	private function mkdir( $dir ) {
 		if ( ! mkdir( $dir ) ) {
-			throw new Exception( 'Can\'t create directory '.$dir, 1 );
+			throw new Exception( 'Can\'t create directory '.$dir );
 		}
 	}
 
 	private function write_to_file( $handle, $string ) {
 		if ( ! fwrite( $handle, $string ) ) {
-			throw new Exception( 'Can\'t write to file', 1 );
+			throw new Exception( 'Can\'t write to file' );
 		}
 	}
 	
