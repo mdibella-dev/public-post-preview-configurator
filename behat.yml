@@ -1,0 +1,27 @@
+default:
+  paths:
+    features: features
+  context:
+    parameters:
+      webserver_dir: /Users/bjoerne/Development/WebserverDocuments/wordpress-behat
+      webserver_url: http://localhost/wordpress-behat
+      wordpress_install_file: wordpress-3.9.1-de_DE.zip
+      sqlite_integration_install_file: sqlite-integration.1.6.3.zip
+      database_file: database.sqlite
+  extensions:
+    Behat\MinkExtension\Extension:
+      base_url: 'http://localhost/wordpress-behat/'
+      default_session: selenium2
+      browser_name: 'firefox'
+      selenium2:
+        capabilities: { "browser": "firefox", "version": "26"}
+  formatter:
+    name:                       pretty
+    parameters:
+      decorated:              false
+      verbose:                false
+      time:                   true
+      language:               en
+      output_path:            null
+      multiline_arguments:    true
+      paths:                   false

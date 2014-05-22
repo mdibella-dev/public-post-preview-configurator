@@ -1,0 +1,19 @@
+{
+  "name": "bjoerne.com/public-post-preview-configurator",
+  "description": "Enables you to configure 'public post preview' WordPress plugin with a user interface.",
+  "authors": [
+    {
+      "name": "bjoerne",
+      "email": "bjoern_weinbrenner@yahoo.de"
+    }
+  ],
+  "require": {
+    "phpunit/phpunit": "3.7.29"
+  },
+  "require-dev": {
+    "behat/behat": "2.5.*@stable",
+    "behat/mink": "1.5@stable",
+    "behat/mink-extension": "*",
+    "behat/mink-selenium2-driver": "*"
+  }
+}
