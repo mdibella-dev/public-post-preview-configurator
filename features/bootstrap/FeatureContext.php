@@ -39,20 +39,15 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
-	 * @Given /^a fresh WordPress installation$/
+	 * @Given /^a fresh WordPress installation( \(([^\)]*)\))?$/
 	 */
-	public function a_fresh_wordress_installation() {
+	public function a_fresh_wordress_installation( $language_expr, $locale = '' ) {
+		$this->wp_config_replacements['WPLANG'] = $locale;
 		$this->create_temp_dir();
 		$this->prepare_wp_in_webserver();
 		$this->prepare_sqlite_integration_in_webserver();
 		$this->prepare_sqlite_database();
 		$this->create_wp_config_file();		
-
-		// $target_dir   = ;
-		// take zip from anywhere
-		// unzip in configured dir
-		// copy sqlite file from anywhere
-		// configure wp-config.php
 	}
 
 	/**
