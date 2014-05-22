@@ -79,6 +79,42 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
+	 * @Given /^the plugin "([^"]*)" is activated$/
+	 */
+	public function the_plugin_is_activated( $plugin_id ) {
+		$plugin_file = "$plugin_id/$plugin_id.php";
+		$pdo  = $this->create_pdo();
+		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name' );
+		$stmt->execute( array( ':option_name' => 'active_plugins' ) );
+		$option_value = $stmt->fetch( PDO::FETCH_ASSOC )['option_value'];
+		$unserialized = unserialize( $option_value );
+		foreach ( $unserialized as $active_plugin ) {
+			if ( $active_plugin == $plugin_file ) {
+				return;
+			}
+		}
+		$unserialized[] = $plugin_file;
+		$option_value   = serialize( $unserialized );
+		$stmt = $pdo->prepare( 'UPDATE wp_options SET option_value = :option_value WHERE option_name = :option_name' );
+		$stmt->execute( array( ':option_name' => 'active_plugins', ':option_value' => $option_value ) );
+	}
+
+	/**
+	 * @Given /^the option "([^"]*)" has the value "([^"]*)"$/
+	 */
+	public function the_option_has_the_value( $option_name, $option_value ) {
+		$pdo  = $this->create_pdo();
+		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name AND option_value = :option_value' );
+		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
+		if ( 0 == $this->num_of_rows( $stmt ) ) {
+			$stmt = $pdo->prepare( 'INSERT INTO wp_options (option_name, option_value) VALUES (:option_name, :option_value)' );
+		} else {
+			$stmt = $pdo->prepare( 'UPDATE wp_options SET option_value = :option_value WHERE option_name = :option_name' );
+		}
+		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
+	}
+
+	/**
 	 * @Given /^I should see the message "([^"]*)"$/
 	 */
 	public function i_should_see_the_message( $msg ) {
@@ -90,10 +126,10 @@ class FeatureContext extends MinkContext {
 	 * @Given /the option "([^"]*)" should have the value "([^"]*)"$/
 	 */
 	public function the_option_should_have_the_value( $option_name, $option_value ) {
-		$pdo = new PDO('sqlite:'.$this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
-		$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-		$result = $pdo->query( "SELECT * FROM wp_options WHERE option_name='$option_name' AND option_value='$option_value'" );
-		assertEquals( count( $result ), 1 );
+		$pdo  = $this->create_pdo();
+		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name AND option_value = :option_value' );
+		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
+		assertEquals( $this->num_of_rows( $stmt ), 1 );
 	}
 
 	/**
@@ -246,5 +282,17 @@ class FeatureContext extends MinkContext {
 
 	private function get_page() {
 		return $this->getSession()->getPage();
+	}
+
+	private function create_pdo() {
+		$pdo = new PDO( 'sqlite:'.$this->path( $this->webserver_dir, 'wp-content', 'database', $this->database_file ) );
+		$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		return $pdo;
+	}
+
+	private function num_of_rows( $result ) {
+		$count = 0;
+		foreach ( $result as $row ) $count++;
+		return $count;
 	}
 }
