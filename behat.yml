@@ -5,8 +5,10 @@ default:
     parameters:
       webserver_dir: /Users/bjoerne/Development/WebserverDocuments/wordpress-behat
       webserver_url: http://localhost/wordpress-behat
-      wordpress_install_file: wordpress-3.9.1-de_DE.zip
-      sqlite_integration_install_file: sqlite-integration.1.6.3.zip
+      install_files:
+        wordpress: wordpress-3.9.1-de_DE.zip
+        sqlite_integration: sqlite-integration.1.6.3.zip
+        public_post_preview: public-post-preview.2.3.zip
       database_file: database.sqlite
   extensions:
     Behat\MinkExtension\Extension:

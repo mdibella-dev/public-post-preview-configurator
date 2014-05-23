@@ -19,8 +19,6 @@ class FeatureContext extends MinkContext {
 	public function __construct( array $parameters ) {
 		$this->parameters = $parameters;
 		$this->install_dir     = $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'install' );
-		$this->wp_install_file = $this->path( $this->install_dir, $this->parameters['wordpress_install_file'] );
-		$this->sqlite_integration_install_file = $this->path( $this->install_dir, $this->parameters['sqlite_integration_install_file'] );
 		$this->webserver_dir   = $this->parameters['webserver_dir'];
 		$this->database_file   = $this->parameters['database_file'];
 		$this->create_wp_config_replacements();
@@ -36,13 +34,20 @@ class FeatureContext extends MinkContext {
 		$this->wp_config_replacements['SECURE_AUTH_SALT'] = '6f=C`:P ?#fes])N`kct`Z+ :1Ty`lAt&AJuQT&.2ZB+o2%WUQ#P_]78lWL1m`8&';
 		$this->wp_config_replacements['LOGGED_IN_SALT']   = 'z%vk: dd+>FKGFJ:6Z4c(<JnHZL6%i=tSO%=^+rHtPi<&WAr@2Cl67Jqo:7MKtOE';
 		$this->wp_config_replacements['NONCE_SALT']       = '/2K@9/*3M&;.2[RJ8$V0L[MmId.<x}R< 7/0 K=mgy=:89],Z2<~LE4(Cs%?!sjd';
+		$this->wp_config_replacements['WPLANG']           = '';
 	}
 
 	/**
-	 * @Given /^a fresh WordPress installation( \(([^\)]*)\))?$/
+	 * @Given /^the blog language is "([^"]*)"$/
 	 */
-	public function a_fresh_wordress_installation( $language_expr = null, $locale = '' ) {
-		$this->wp_config_replacements['WPLANG'] = $locale;
+	public function set_blog_language( $language ) {
+		$this->wp_config_replacements['WPLANG'] = $language;
+	}
+
+	/**
+	 * @Given /^a fresh WordPress is installed$/
+	 */
+	public function install_fresh_wordress( $language_expr = null, $locale = '' ) {
 		$this->create_temp_dir();
 		$this->prepare_wp_in_webserver();
 		$this->prepare_sqlite_integration_in_webserver();
@@ -51,16 +56,26 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
-	 * @Given /^the plugin "([^"]*)" in the plugin directory$/
+	 * @Given /^the plugin "([^"]*)" is installed \(from source\)$/
 	 */
-	public function the_plugin_in_the_plugin_directory( $plugin_target_dir ) {
-		$this->copy_file_or_dir( $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'src' ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', $plugin_target_dir ) );
+	public function install_plugin_from_src( $plugin_id ) {
+		$this->copy_file_or_dir( $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'src' ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', $plugin_id ) );
+	}
+
+	/**
+	 * @Given /^the plugin "([^"]*)" is installed$/
+	 */
+	public function install_plugin( $plugin_id ) {
+		$install_name = str_replace( '-', '_', $plugin_id );
+		$install_file = $this->install_file( $install_name );
+		$this->extract_zip_to_dir( $install_file, $this->temp_dir );
+		$this->move_file_or_dir( $this->path( $this->temp_dir, $plugin_id ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', $plugin_id ) );
 	}
 
 	/**
 	 * @Given /^I am logged as an administrator$/
 	 */
-	public function i_am_logged_in_as_an_administrator() {
+	public function login_as_administrator() {
 		$this->login( 'admin', 'admin' );
 	}
 
@@ -73,15 +88,16 @@ class FeatureContext extends MinkContext {
 		foreach ( $plugin_area->findAll( 'css', 'a' ) as $link ) {
 			if ( preg_match( '/action=activate/', $link->getAttribute( 'href' ) ) ) {
 				$link->click();
-				break;
+				return;
 			}
 		}
+		throw new Exception( "Plugin '$plugin_id' not found" );
 	}
 
 	/**
 	 * @Given /^the plugin "([^"]*)" is activated$/
 	 */
-	public function the_plugin_is_activated( $plugin_id ) {
+	public function activate_plugin( $plugin_id ) {
 		$plugin_file = "$plugin_id/$plugin_id.php";
 		$pdo  = $this->create_pdo();
 		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name' );
@@ -102,7 +118,7 @@ class FeatureContext extends MinkContext {
 	/**
 	 * @Given /^the option "([^"]*)" has the value "([^"]*)"$/
 	 */
-	public function the_option_has_the_value( $option_name, $option_value ) {
+	public function set_option( $option_name, $option_value ) {
 		$pdo  = $this->create_pdo();
 		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name AND option_value = :option_value' );
 		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
@@ -117,7 +133,7 @@ class FeatureContext extends MinkContext {
 	/**
 	 * @Given /^I should see the message "([^"]*)"$/
 	 */
-	public function i_should_see_the_message( $msg ) {
+	public function assert_message( $msg ) {
 		assertNotNull( $this->get_page()->find( 'css', '.updated' ), "Can't find element" );
 		assertTrue( $this->get_page()->hasContent( $msg ), "Can't find message" );
 	}
@@ -125,7 +141,7 @@ class FeatureContext extends MinkContext {
 	/**
 	 * @Given /the option "([^"]*)" should have the value "([^"]*)"$/
 	 */
-	public function the_option_should_have_the_value( $option_name, $option_value ) {
+	public function assert_option_value( $option_name, $option_value ) {
 		$pdo  = $this->create_pdo();
 		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name AND option_value = :option_value' );
 		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
@@ -135,7 +151,7 @@ class FeatureContext extends MinkContext {
 	/**
 	 * @Given /^I wait for ([\d\.]*) seconds$/
 	 */
-	public function i_wait_for( $seconds ) {
+	public function wait( $seconds ) {
 		sleep( intval( $seconds ) );
 	}
 
@@ -153,7 +169,7 @@ class FeatureContext extends MinkContext {
 	}
 
 	private function prepare_wp_in_webserver() {
-		$this->extract_zip_to_dir( $this->wp_install_file, $this->temp_dir );
+		$this->extract_zip_to_dir( $this->install_file( 'wordpress' ), $this->temp_dir );
 		if ( is_dir( $this->webserver_dir ) ) {
 			$this->delete_file_or_dir( $this->webserver_dir );
 		}
@@ -161,13 +177,16 @@ class FeatureContext extends MinkContext {
 	}
 
 	private function prepare_sqlite_integration_in_webserver() {
-		$this->extract_zip_to_dir( $this->sqlite_integration_install_file, $this->temp_dir );
-		$this->move_file_or_dir( $this->path( $this->temp_dir, 'sqlite-integration' ), $this->path( $this->webserver_dir, 'wp-content', 'plugins', 'sqlite-integration' ) );
+		$this->install_plugin( 'sqlite-integration' );
 		$this->copy_file_or_dir( $this->path( $this->webserver_dir, 'wp-content', 'plugins', 'sqlite-integration', 'db.php' ), $this->path( $this->webserver_dir, 'wp-content', 'db.php' ) );
 	}
 
 	private function prepare_sqlite_database() {
 		$this->copy_file_or_dir( $this->path( $this->install_dir, $this->database_file ), $this->path( $this->temp_dir, $this->database_file ) );
+	}
+
+	private function install_file( $install_name ) {
+		return $this->path( $this->install_dir, $this->parameters['install_files'][$install_name] );
 	}
 
 	private function create_wp_config_file() {
