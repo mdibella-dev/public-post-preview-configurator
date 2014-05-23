@@ -9,7 +9,8 @@ default:
         wordpress: wordpress-3.9.1-de_DE.zip
         sqlite_integration: sqlite-integration.1.6.3.zip
         public_post_preview: public-post-preview.2.3.zip
-      database_file: database.sqlite
+        disable_google_fonts: disable-google-fonts.1.0.zip
+      database_file: database_no_gravatar.sqlite
   extensions:
     Behat\MinkExtension\Extension:
       base_url: 'http://localhost/wordpress-behat/'
@@ -18,7 +19,7 @@ default:
       selenium2:
         capabilities: { "browser": "firefox", "version": "26"}
   formatter:
-    name:                       pretty
+    name:                     pretty
     parameters:
       decorated:              false
       verbose:                false
@@ -26,4 +27,6 @@ default:
       language:               en
       output_path:            null
       multiline_arguments:    true
-      paths:                   false
+      paths:                  false
+  filters:
+    tags:                 ~@devonly

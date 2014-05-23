@@ -7,13 +7,14 @@
       "email": "bjoern_weinbrenner@yahoo.de"
     }
   ],
+  "minimum-stability": "dev",
   "require": {
     "phpunit/phpunit": "3.7.29"
   },
   "require-dev": {
     "behat/behat": "2.5.*@stable",
-    "behat/mink": "1.5@stable",
+    "behat/mink": "~1.6@dev",
     "behat/mink-extension": "*",
-    "behat/mink-selenium2-driver": "*"
+    "behat/mink-selenium2-driver": "1.2.*@dev"
   }
 }

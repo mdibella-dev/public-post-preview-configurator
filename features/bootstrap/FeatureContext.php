@@ -52,6 +52,8 @@ class FeatureContext extends MinkContext {
 		$this->prepare_wp_in_webserver();
 		$this->prepare_sqlite_integration_in_webserver();
 		$this->prepare_sqlite_database();
+		$this->install_plugin( 'disable-google-fonts' );
+		$this->activate_plugin( 'disable-google-fonts' );		
 		$this->create_wp_config_file();
 	}
 
@@ -80,9 +82,17 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
+	 * @Given /^I logout$/
+	 */
+	public function logout() {
+		$this->visit( 'wp-login.php?action=logout' );
+		$this->get_page()->find( 'css', '#error-page a' )->click();
+	}
+
+	/**
 	 * @Given /^I activate the plugin "([^"]*)"$/
 	 */
-	public function i_activate_the_plugin( $plugin_id ) {
+	public function activate_plugin_manually( $plugin_id ) {
 		$page = $this->get_page();
 		$plugin_area = $page->find( 'css', "#$plugin_id" );
 		foreach ( $plugin_area->findAll( 'css', 'a' ) as $link ) {
@@ -149,7 +159,34 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
-	 * @Given /^I wait for ([\d\.]*) seconds$/
+	 * @Given /the public post preview should have a validity of (\d*) hours$/
+	 */
+	public function assert_ppp_validity( $validity_in_hours ) {
+		$ppp_url = $this->get_page()->findField( 'public_post_preview_link' )->getAttribute( 'value' );
+		preg_match( '/_ppp=([a-f0-9]*)/', $ppp_url, $matches );
+		$current_hash = $matches[1];
+		$nonce_life   = $validity_in_hours * 3600;
+		preg_match( '/[?&]p=([0-9]*)/', $ppp_url, $matches );
+		$post_id = $matches[1];
+		$action = 'public_post_preview_'.$post_id;
+		$i = ceil( time() / ( $nonce_life / 2 ) );
+		$expected_hash = substr( $this->wp_hash( $i . $action, 'nonce' ), -12, 10 );
+		assertEquals( $expected_hash, $current_hash );
+	}
+
+	private function wp_hash( $data, $scheme = 'auth' ) {
+		$salt = $this->wp_salt( $scheme );
+		return hash_hmac( 'md5', $data, $salt );
+	}
+
+	private function wp_salt( $scheme = 'auth' ) {
+		$key  = $this->wp_config_replacements[strtoupper( $scheme ).'_KEY'];
+		$salt = $this->wp_config_replacements[strtoupper( $scheme ).'_SALT'];
+		return "$key$salt";
+	}
+
+	/**
+	 * @Given /^I wait for ([\d\.]*) second[s]?$/
 	 */
 	public function wait( $seconds ) {
 		sleep( intval( $seconds ) );
