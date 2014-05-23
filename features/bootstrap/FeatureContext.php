@@ -17,11 +17,20 @@ class FeatureContext extends MinkContext {
 	 * @param array $parameters
 	 */
 	public function __construct( array $parameters ) {
-		$this->parameters = $parameters;
-		$this->install_dir     = $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'install' );
-		$this->webserver_dir   = $this->parameters['webserver_dir'];
-		$this->database_file   = $this->parameters['database_file'];
+		$this->parameters    = $parameters;
+		$this->install_dir   = $this->path( dirname( dirname( dirname( __FILE__ ) ) ), 'install' );
+		$this->webserver_dir = $this->parameters['webserver_dir'];
+		$this->database_file = $this->parameters['database_file'];
 		$this->create_wp_config_replacements();
+	}
+
+	/**
+	 * @BeforeScenario
+	 */
+	public function set_implicit_timeout( $event ) {
+		if ( array_key_exists( 'selenium_implicit_timeout', $this->parameters ) ) {
+			$this->getSession()->getDriver()->setTimeouts( array( 'implicit' => $this->parameters['selenium_implicit_timeout'] ) );
+		}
 	}
 
 	private function create_wp_config_replacements() {

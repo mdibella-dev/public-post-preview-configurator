@@ -1,35 +1,36 @@
 <?php
 /**
- * Plugin Name: Public Post Preview Configurator
- * Plugin URI: http://www.bjoerne.com
- * Version: 1.0.1
- * Description: Enables you to configure 'public post preview' plugin with a user interface.
- * Author: Björn Weinbrenner
- * Author URI: http://www.bjoerne.com/
+ * @package   Public_Post_Preview_Configurator
+ * @author    Björn Weinbrenner <info@bjoerne.com>
+ * @license   GPL-2.0+
+ * @link      http://bjoerne.com
+ * @copyright 2014 bjoerne.com
  *
- * License: GPLv2 or later
+ * @wordpress-plugin
+ * Plugin Name:       Public Post Preview Configurator
+ * Plugin URI:        http://www.bjoerne.com
+ * Description:       Enables you to configure 'public post preview' plugin with a user interface.
+ * Version:           1.0.2
+ * Author:            Björn Weinbrenner
+ * Author URI:        http://www.bjoerne.com/
+ * Text Domain:       public-post-preview-configurator
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Domain Path:       /languages
+ * GitHub Plugin URI: https://github.com/bjoerne2/public-post-preview-configurator
+ * WordPress-Plugin-Boilerplate: v2.6.1
  */
 
-include_once dirname(__FILE__).'/options.php';
-
-add_filter( 'ppp_nonce_life', 'ppp_configurator_nonce_life');
-if (is_admin()) {
-	add_action('admin_init', 'ppp_configurator_register_setting');
-	add_action('admin_menu', 'ppp_configurator_add_options_page');
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+	die;
 }
 
-function ppp_configurator_register_setting() {
-	register_setting('ppp_configurator_group', 'ppp_configurator_expiration_hours');
-}
+require_once( plugin_dir_path( __FILE__ ) . 'public/class-public-post-preview-configurator.php' );
 
-function ppp_configurator_add_options_page() {
-	add_options_page(__('Public Post Preview Configurator'), __('Public Post Preview Configurator'), 'manage_options', basename(__FILE__), 'ppp_configurator_show_settings_page');
-}
+add_action( 'plugins_loaded', array( 'Public_Post_Preview_Configurator', 'get_instance' ) );
 
-function ppp_configurator_nonce_life($nonce_life) {
-	$expiration_hours = (int) get_option('ppp_configurator_expiration_hours');
-	if ($expiration_hours && $expiration_hours > 0) {
-		return 60 * 60 * $expiration_hours;
-	}
-	return $nonce_life;
+if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+	require_once( plugin_dir_path( __FILE__ ) . 'admin/class-public-post-preview-configurator-admin.php' );
+	add_action( 'plugins_loaded', array( 'Public_Post_Preview_Configurator_Admin', 'get_instance' ) );
 }
