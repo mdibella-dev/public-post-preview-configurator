@@ -105,7 +105,23 @@ class Public_Post_Preview_Configurator_Admin {
 	 * @since    1.0.2
 	 */
 	public function register_setting() {
-		register_setting( 'ppp_configurator_group', 'ppp_configurator_expiration_hours' );
+		register_setting( 'ppp_configurator_group', 'ppp_configurator_expiration_hours', array( $this, 'validate_expiration_hours' ) );
+	}
+
+	/**
+	 * Validates the expiration hours setting. It must be a positiv integer number. Otherwise an error message is displayed.
+	 *
+	 * @since    1.0.2
+	 */
+	public function validate_expiration_hours( $input ) {
+		if ( $input == '' ) {
+			return $iinput;
+		}
+		if ( ! ctype_digit( $input ) || intval( $input ) == 0 ) {
+			add_settings_error( 'ppp_validate_expiration_hours_failed', esc_attr( 'settings_updated'), "Invalid value for 'Expiration hours'. Must be a positive integer.", 'error' );
+			return '';
+		}
+		return $input;
 	}
 
 	/**

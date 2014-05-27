@@ -158,6 +158,14 @@ class FeatureContext extends MinkContext {
 	}
 
 	/**
+	 * @Given /^I should see the error message "([^"]*)"$/
+	 */
+	public function assert_error_message( $msg ) {
+		assertNotNull( $this->get_page()->find( 'css', '.error' ), "Can't find element" );
+		assertTrue( $this->get_page()->hasContent( $msg ), "Can't find message" );
+	}
+
+	/**
 	 * @Given /the option "([^"]*)" should have the value "([^"]*)"$/
 	 */
 	public function assert_option_value( $option_name, $option_value ) {
