@@ -60,6 +60,7 @@ class Public_Post_Preview_Configurator {
 	 * @since     1.0.2
 	 */
 	private function __construct() {
+		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 		add_filter( 'ppp_nonce_life', array( $this, 'configured_nounce_life' ) );
 	}
 
@@ -90,6 +91,19 @@ class Public_Post_Preview_Configurator {
 
 		return self::$instance;
 	}
+
+	/**
+	 * Load the plugin text domain for translation.
+	 *
+	 * @since    1.0.2
+	 */
+	public function load_plugin_textdomain() {
+		$domain = $this->plugin_slug;
+		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+		load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
+		load_plugin_textdomain( $domain, FALSE, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
+	}
+
 
 	/**
 	 * Sets a new ppp_nonce_life value based on a plugin option or returns the given value if no value has been configured.

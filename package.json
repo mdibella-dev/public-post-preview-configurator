@@ -1,0 +1,27 @@
+{
+  "name": "public-post-preview-configurator",
+  "version": "1.0.2",
+  "description": "Enables you to configure 'public post preview' WordPress plugin with a user interface.",
+  "main": "index.js",
+  "scripts": {
+    "test": "bin/behat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bjoerne2/public-post-preview-configurator.git"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin"
+  ],
+  "author": "Björn Weinbrenner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bjoerne2/public-post-preview-configurator/issues"
+  },
+  "homepage": "https://github.com/bjoerne2/public-post-preview-configurator",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-pot": "~0.1.2"
+  }
+}

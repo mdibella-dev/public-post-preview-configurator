@@ -24,7 +24,7 @@
 		<table class="form-table">
 			<tbody>
 				<tr valign="top">
-					<th scope="row">Expiration hours</th>
+					<th scope="row"><?php _e( 'Expiration hours' , $this->plugin_slug ) ?></th>
 					<td>
 						<input id="ppp_configurator_expiration_hours" class="regular-text" type="text" value="<?php echo esc_html( get_option( 'ppp_configurator_expiration_hours' ) ) ?>" name="ppp_configurator_expiration_hours" />
 						<p class="description">Expiration of the preview link in hours, default = 48</p>

@@ -3,11 +3,11 @@ Feature: See plugin in blog language
   As an administrator
   I need to be able to read all text of the plugin in the blog language
 
-  Scenario: See german translations
+  Scenario: See german translations on plugins page
     Given the blog language is "de_DE"
     And a fresh WordPress is installed
     And the plugin "public-post-preview-configurator" is installed (from source)
     And the plugin "public-post-preview-configurator" is activated
     And I am logged as an administrator
     When I go to "/wp-admin/plugins.php"
-    Then I should see "Public Post Preview Configurator"
+    Then I should see "Konfigurator für Öffentliche Vorschau"

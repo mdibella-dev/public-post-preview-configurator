@@ -1,0 +1,40 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: public-post-preview-configurator 1.0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-05-27 21:54+0700\n"
+"PO-Revision-Date: 2014-05-27 23:25+0700\n"
+"Last-Translator: \n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.5\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/admin/class-public-post-preview-configurator-admin.php:94
+#: src/admin/class-public-post-preview-configurator-admin.php:95
+msgid "Public Post Preview Configurator"
+msgstr "Konfigurator für Öffentliche Vorschau"
+
+#: src/admin/class-public-post-preview-configurator-admin.php:121
+#, php-format
+msgctxt "Error message"
+msgid "Invalid value for '%s'. Must be a positive integer."
+msgstr "Ungültiger Wert für '%s'. Positive Ganzzahl erwartet."
+
+#: src/admin/class-public-post-preview-configurator-admin.php:122
+#: src/admin/views/admin.php:27
+msgid "Expiration hours"
+msgstr "Gültigkeit in Stunden"
+
+#: src/admin/class-public-post-preview-configurator-admin.php:145
+msgctxt "Link from plugin page to settings"
+msgid "Settings"
+msgstr "Einstellungen"
