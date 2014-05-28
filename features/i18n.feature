@@ -11,3 +11,8 @@ Feature: See plugin in blog language
     And I am logged as an administrator
     When I go to "/wp-admin/plugins.php"
     Then I should see "Konfigurator für Öffentliche Vorschau"
+    And I should see "Ermöglicht die Konfiguration des Plugins 'Öffentliche Vorschau' per Benutzeroberfläche."
+    When I go to "/wp-admin/options-general.php?page=public-post-preview-configurator"
+    Then I should see "Konfigurator für Öffentliche Vorschau"
+    And I should see "Gültigkeit in Stunden"
+    And I should see "Gültigkeit des Vorschau-Links in Stunden (Default = 48)"

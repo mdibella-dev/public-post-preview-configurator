@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: public-post-preview-configurator 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-27 23:31+0700\n"
+"POT-Creation-Date: 2014-05-28 18:47+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -36,4 +36,14 @@ msgstr ""
 #: src/admin/class-public-post-preview-configurator-admin.php:145
 msgctxt "Link from plugin page to settings"
 msgid "Settings"
+msgstr ""
+
+#: src/admin/views/admin.php:30
+msgctxt "Explanation text for input field"
+msgid "Expiration of the preview link in hours (default = 48)"
+msgstr ""
+
+
+#: Project description
+msgid "Enables you to configure 'public post preview' plugin with a user interface."
 msgstr ""
