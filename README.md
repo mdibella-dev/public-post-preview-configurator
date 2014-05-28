@@ -15,7 +15,10 @@ With this plugin it's possible to configure the expiration time of a link provid
 
 Build
 -----
-This project contains files to use **Grunt**. With **grunt wppot** you can update the .pot file according to the source code.
+This project contains files to use **Composer** and **Grunt**:
+
+*  The composer file contains the PHP dependencies to execute the **behat** specs (see below)
+*  With **grunt wppot** you can update the .pot file according to the used i18n methods in the source code.
 
 Test
 ----
