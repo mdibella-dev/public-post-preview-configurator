@@ -2,7 +2,7 @@
 /**
  * @package   Public_Post_Preview_Configurator
  * @author    Björn Weinbrenner <info@bjoerne.com>
- * @license   GPL-2.0+
+ * @license   GPLv3
  * @link      http://bjoerne.com
  * @copyright 2014 bjoerne.com
  *
@@ -14,8 +14,8 @@
  * Author:            Björn Weinbrenner
  * Author URI:        http://www.bjoerne.com/
  * Text Domain:       public-post-preview-configurator
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * License:           GPLv3
+ * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
  * Domain Path:       /languages
  * GitHub Plugin URI: https://github.com/bjoerne2/public-post-preview-configurator
  * WordPress-Plugin-Boilerplate: v2.6.1

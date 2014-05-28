@@ -4,7 +4,7 @@
  *
  * @package   Public_Post_Preview_Configurator
  * @author    Your Name <email@example.com>
- * @license   GPL-2.0+
+ * @license   GPLv3
  * @link      http://bjoerne.com
  * @copyright 2014 bjoerne.com
  */
