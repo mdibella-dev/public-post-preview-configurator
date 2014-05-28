@@ -23,3 +23,15 @@ With this plugin it's possible to configure the expiration time of a link provid
 == Screenshots ==
 
 1. Options
+
+== Changelog ==
+
+= 1.0.0 =
+* Provide configuration page to configure expiration time of 'public post preview' plugin
+
+= 1.0.1 =
+* Bugfix: ppp_configurator_nonce_life filter was only applied when logged in
+
+= 1.0.2 =
+* Clean up code based on WordPress-Plugin-Boilerplate
+* Remove option when plugin is uninstalled
