@@ -104,13 +104,26 @@ class FeatureContext extends MinkContext {
 	public function activate_plugin_manually( $plugin_id ) {
 		$page = $this->get_page();
 		$plugin_area = $page->find( 'css', "#$plugin_id" );
-		foreach ( $plugin_area->findAll( 'css', 'a' ) as $link ) {
-			if ( preg_match( '/action=activate/', $link->getAttribute( 'href' ) ) ) {
-				$link->click();
-				return;
-			}
-		}
-		throw new Exception( "Plugin '$plugin_id' not found" );
+		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=activate')]")->click();
+	}
+
+	/**
+	 * @Given /^I deactivate the plugin "([^"]*)"$/
+	 */
+	public function deactivate_plugin_manually( $plugin_id ) {
+		$page = $this->get_page();
+		$plugin_area = $page->find( 'css', "#$plugin_id" );
+		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=deactivate')]")->click();
+	}
+
+	/**
+	 * @Given /^I uninstall the plugin "([^"]*)"$/
+	 */
+	public function uninstall_plugin_manually( $plugin_id ) {
+		$plugin_area = $this->get_page()->find( 'css', "#$plugin_id" );
+		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=delete-selected')]")->click();
+		$form = $this->get_page()->find( 'xpath', "//form[contains(@action, 'action=delete-selected')]" );
+		$form->find( 'css', '#submit' )->press();
 	}
 
 	/**
@@ -173,6 +186,16 @@ class FeatureContext extends MinkContext {
 		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name AND option_value = :option_value' );
 		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
 		assertEquals( $this->num_of_rows( $stmt ), 1 );
+	}
+
+	/**
+	 * @Given /^the option "([^"]*)" should not exist$/
+	 */
+	public function assert_option_not_exists( $option_name ) {
+		$pdo  = $this->create_pdo();
+		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name' );
+		$stmt->execute( array( ':option_name' => $option_name ) );
+		assertEquals( $this->num_of_rows( $stmt ), 0 );
 	}
 
 	/**
