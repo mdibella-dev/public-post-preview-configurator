@@ -12,9 +12,10 @@
     "phpunit/phpunit": "3.7.29"
   },
   "require-dev": {
-    "behat/behat": "2.5.*@stable",
+    "behat/behat": "v2.5.3",
     "behat/mink": "~1.6@dev",
     "behat/mink-extension": "*",
-    "behat/mink-selenium2-driver": "1.2.*@dev"
+    "behat/mink-selenium2-driver": "1.2.*@dev",
+    "symfony/console": "v2.4.5"
   }
 }

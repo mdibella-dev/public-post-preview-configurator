@@ -43,14 +43,7 @@ class FeatureContext extends MinkContext {
 		$this->wp_config_replacements['SECURE_AUTH_SALT'] = '6f=C`:P ?#fes])N`kct`Z+ :1Ty`lAt&AJuQT&.2ZB+o2%WUQ#P_]78lWL1m`8&';
 		$this->wp_config_replacements['LOGGED_IN_SALT']   = 'z%vk: dd+>FKGFJ:6Z4c(<JnHZL6%i=tSO%=^+rHtPi<&WAr@2Cl67Jqo:7MKtOE';
 		$this->wp_config_replacements['NONCE_SALT']       = '/2K@9/*3M&;.2[RJ8$V0L[MmId.<x}R< 7/0 K=mgy=:89],Z2<~LE4(Cs%?!sjd';
-		$this->wp_config_replacements['WPLANG']           = '';
-	}
-
-	/**
-	 * @Given /^the blog language is "([^"]*)"$/
-	 */
-	public function set_blog_language( $language ) {
-		$this->wp_config_replacements['WPLANG'] = $language;
+		$this->wp_config_replacements['WP_DEBUG']         = 'true';
 	}
 
 	/**
@@ -152,8 +145,8 @@ class FeatureContext extends MinkContext {
 	 */
 	public function set_option( $option_name, $option_value ) {
 		$pdo  = $this->create_pdo();
-		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name AND option_value = :option_value' );
-		$stmt->execute( array( ':option_name' => $option_name, ':option_value' => $option_value ) );
+		$stmt = $pdo->prepare( 'SELECT * FROM wp_options WHERE option_name = :option_name' );
+		$stmt->execute( array( ':option_name' => $option_name ) );
 		if ( 0 == $this->num_of_rows( $stmt ) ) {
 			$stmt = $pdo->prepare( 'INSERT INTO wp_options (option_name, option_value) VALUES (:option_name, :option_value)' );
 		} else {
@@ -286,6 +279,11 @@ class FeatureContext extends MinkContext {
 					$this->write_to_file( $target_handle, "\r\n" );
 				}
 				$this->write_to_file( $target_handle, $line );
+				if ( preg_match( "/define\\('WP_DEBUG', \w*\\);/", $line ) ) {
+					$this->write_to_file( $target_handle, "define('WP_DEBUG_LOG', true);\n" );
+					$this->write_to_file( $target_handle, "define('AUTOMATIC_UPDATER_DISABLED', true);\n" );
+					$this->write_to_file( $target_handle, "define('WP_HTTP_BLOCK_EXTERNAL', true);\n" );
+				}
 			} 
 		} finally {
 			fclose( $source_handle );

@@ -4,8 +4,8 @@ Feature: See plugin in blog language
   I need to be able to read all text of the plugin in the blog language
 
   Scenario: See german translations on plugins page
-    Given the blog language is "de_DE"
-    And a fresh WordPress is installed
+    Given a fresh WordPress is installed
+    And the option "WPLANG" has the value "de_DE"
     And the plugin "public-post-preview-configurator" is installed (from source)
     And the plugin "public-post-preview-configurator" is activated
     And I am logged as an administrator
@@ -14,8 +14,8 @@ Feature: See plugin in blog language
     And I should see "Ermöglicht die Konfiguration des Plugins 'Öffentliche Vorschau' per Benutzeroberfläche."
 
   Scenario: See german translations on settings page
-    Given the blog language is "de_DE"
-    And a fresh WordPress is installed
+    Given a fresh WordPress is installed
+    And the option "WPLANG" has the value "de_DE"
     And the plugin "public-post-preview-configurator" is installed (from source)
     And the plugin "public-post-preview-configurator" is activated
     And I am logged as an administrator
