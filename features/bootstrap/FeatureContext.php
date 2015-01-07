@@ -97,7 +97,7 @@ class FeatureContext extends MinkContext {
 	public function activate_plugin_manually( $plugin_id ) {
 		$page = $this->get_page();
 		$plugin_area = $page->find( 'css', "#$plugin_id" );
-		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=activate')]")->click();
+		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=activate')]" )->click();
 	}
 
 	/**
@@ -106,7 +106,7 @@ class FeatureContext extends MinkContext {
 	public function deactivate_plugin_manually( $plugin_id ) {
 		$page = $this->get_page();
 		$plugin_area = $page->find( 'css', "#$plugin_id" );
-		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=deactivate')]")->click();
+		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=deactivate')]" )->click();
 	}
 
 	/**
@@ -114,7 +114,7 @@ class FeatureContext extends MinkContext {
 	 */
 	public function uninstall_plugin_manually( $plugin_id ) {
 		$plugin_area = $this->get_page()->find( 'css', "#$plugin_id" );
-		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=delete-selected')]")->click();
+		$plugin_area->find( 'xpath', "//a[contains(@href, 'action=delete-selected')]" )->click();
 		$form = $this->get_page()->find( 'xpath', "//form[contains(@action, 'action=delete-selected')]" );
 		$form->find( 'css', '#submit' )->press();
 	}
@@ -314,9 +314,13 @@ class FeatureContext extends MinkContext {
 	private function login( $username, $password ) {
 		$this->visit( 'wp-admin' );
 		$page = $this->get_page();
-		$page->fillField( 'user_login', $username );
-		$page->fillField( 'user_pass', $password );
-		$page->findButton( 'wp-submit' )->click();
+		for ( $i = 0; $i < 5; $i++ ) { 
+			$page->fillField( 'user_login', $username );
+			$page->fillField( 'user_pass', $password );
+			if ( $this->getSession()->evaluateScript( "(function () { if (document.getElementById('user_pass').value == '') { return false; } else { document.getElementById('wp-submit').click(); return true; } })();" ) ) {
+				break;
+			}
+		}
 		assertTrue( $page->hasContent( 'Dashboard' ) );
 	}
 
