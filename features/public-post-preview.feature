@@ -10,6 +10,7 @@ Feature: Use plugin
     And I am logged as an administrator
     When I go to "/wp-admin/post-new.php"
     And I fill in "title" with "This is an unpublished article"
+    And I wait until no AJAX request is pending for 2 second
     And I press "save-post"
     And I check "public-post-preview"
     Then the public post preview should have a validity of 48 hours
@@ -24,6 +25,7 @@ Feature: Use plugin
     And I am logged as an administrator
     When I go to "/wp-admin/post-new.php"
     And I fill in "title" with "This is an unpublished article"
+    And I wait until no AJAX request is pending for 2 second
     And I press "save-post"
     And I check "public-post-preview"
     Then the public post preview should have a validity of 100000 hours

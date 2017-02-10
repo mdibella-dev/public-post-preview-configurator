@@ -10,7 +10,7 @@ Feature: Uninstall plugin
     And the option "ppp_configurator_expiration_hours" has the value "100000"
     And I am logged as an administrator
     When I go to "/wp-admin/plugins.php"
-    And I deactivate the plugin "public-post-preview-configurator"
-    And I uninstall the plugin "public-post-preview-configurator"
-    Then I should see the message "The selected plugins have been deleted"
+    And I deactivate the plugin "Public Post Preview Configurator"
+    And I uninstall the plugin "Public Post Preview Configurator"
+    Then I should see the message "Public Post Preview Configurator was successfully deleted."
     And the option "ppp_configurator_expiration_hours" should not exist

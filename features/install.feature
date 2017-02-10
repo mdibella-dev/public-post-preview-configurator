@@ -15,6 +15,6 @@ Feature: Install and activate plugin
     And the plugin "public-post-preview-configurator" is installed (from source)
     And I am logged as an administrator
     When I go to "/wp-admin/plugins.php"
-    And I activate the plugin "public-post-preview-configurator"
+    And I activate the plugin "Public Post Preview Configurator"
     Then I should see the message "Plugin activated"
     And the plugin "public-post-preview-configurator" is activated

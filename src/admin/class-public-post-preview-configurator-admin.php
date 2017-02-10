@@ -115,7 +115,7 @@ class Public_Post_Preview_Configurator_Admin {
 	 */
 	public function validate_expiration_hours( $input ) {
 		if ( $input == '' ) {
-			return $iinput;
+			return $input;
 		}
 		if ( ! ctype_digit( $input ) || intval( $input ) == 0 ) {
 			$error_msg = _x( "Invalid value for '%s'. Must be a positive integer.", 'Error message', $this->plugin_slug );

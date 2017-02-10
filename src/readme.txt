@@ -3,8 +3,8 @@ Contributors: bjoerne
 Tags: public, post, preview, posts, configuration
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XS98Y5ASSH5S4
 Requires at least: 3.5
-Tested up to: 4.1
-Stable tag: 1.0.2
+Tested up to: 4.7.2
+Stable tag: trunk
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -35,3 +35,6 @@ With this plugin it's possible to configure the expiration time of a link provid
 = 1.0.2 =
 * Clean up code based on WordPress-Plugin-Boilerplate
 * Remove option when plugin is uninstalled
+
+= 1.0.3 =
+* Bugfix: Reset config when entering empty value
