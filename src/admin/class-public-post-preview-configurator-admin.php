@@ -19,6 +19,7 @@
  * @package Public_Post_Preview_Configurator_Admin
  * @author  Björn Weinbrenner <info@bjoerne.com>
  */
+#[AllowDynamicProperties]
 class Public_Post_Preview_Configurator_Admin {
 
 	/**
